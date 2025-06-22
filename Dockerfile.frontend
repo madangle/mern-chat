@@ -1,0 +1,21 @@
+# Dockerfile.frontend for Vite
+FROM node:18
+
+WORKDIR /app
+
+# Install dependencies
+COPY frontend/package*.json ./
+RUN npm install
+
+# Copy all source code
+COPY frontend/ ./
+
+# Build Vite app
+RUN npm run build
+
+# Install serve globally
+RUN npm install -g serve
+
+# Serve the Vite app from dist/
+EXPOSE 3000
+CMD ["serve", "-s", "dist"]
