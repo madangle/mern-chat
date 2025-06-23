@@ -16,7 +16,6 @@ const getUsers = asyncHandler(async (req, res) => {
         }
         : {};
     const users = await User.find(keyword);
-    console.log(req.query.keyword, keyword, users);
     res.send(users);
 })
 
@@ -188,9 +187,44 @@ const deleteUser = asyncHandler(async(req, res) => {
     }
 })
 
+const login = asyncHandler(async(req, res) => {
+    const { email, password } = req.body;
+    if(!email || !password) {
+        return res.status(404).json({
+            success: false,
+            message: 'Please enter all the required fields'
+        })
+    }
+    const user = await User.findOne({ 
+        email 
+    });
+
+    if (user && (await user.matchPassword(password))) {
+        res.status(200).json({
+            success: true,
+            message: 'User logged in successfully',
+            data: {
+                _id: user._id,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                email: user.email,
+                isAdmin: user.isAdmin,
+                avatar: user.avatar,
+                status:user.status,
+                token: generateToken(user._id)
+            }
+        })
+    }
+    else{
+        res.status(400).json({
+            success: false,
+            message: 'User not created'
+        })
+    }
+})
 //
 const changePassword = asyncHandler(async() => {
 
 })
 
-module.exports = {createUser, getUsers, getUser, updateUser, deleteUser, changePassword}
+module.exports = {createUser, getUsers, getUser, updateUser, deleteUser, login}
